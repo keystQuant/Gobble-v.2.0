@@ -1,0 +1,47 @@
+version: "3"
+
+services:
+  rabbit:
+    container_name: gobble-rabbit
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=admin123
+    image: rabbitmq:3-management
+    ports:
+      - 5672:5672
+      - 15672:15672
+    restart: unless-stopped
+
+  nginx:
+    container_name: gobble-nginx
+    build: ./nginx
+    links:
+      - app:app
+    ports:
+      - 3000:3000
+    depends_on:
+      - app
+    restart: unless-stopped
+
+  app:
+    container_name: gobble-app
+    build: .
+    depends_on:
+      - rabbit
+    links:
+      - rabbit:rabbit
+    ports:
+      - 8080:8080
+    restart: unless-stopped
+
+  worker:
+    container_name: gobble-worker
+    build:
+      context: .
+      dockerfile: Workerdocker
+    depends_on:
+      - app
+      - rabbit
+    links:
+      - rabbit:rabbit
+    restart: unless-stopped
