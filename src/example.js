@@ -43,39 +43,72 @@ const main = async () => {
   console.log(processedDateData);
   await redis.delKey('mass_date');
   await redis.setList(processedDateData);
-  await axios.get(SAVE_DATA_URL.format('SAVE_MASS_DATE'));
+  await axios.get(SAVE_DATA_URL.format('SAVE_MASS_DATE'))
+    .catch(error => {
+      console.log(error);
+    });
 
   const current_date = processedDateData.slice(-1)[0];
 
-  ///// TASK 2: GET KOSPI TICKERS /////
-  const kospiTickersData = await puppet.getKospiTickers(current_date);
-  processor.setData(kospiTickersData);
-  const processedKospiTickersData = await processor.processKospiTickers();
-  console.log(processedKospiTickersData);
-  await redis.delKey('kospi_tickers');
-  await redis.setList(processedKospiTickersData);
-  await axios.get(SAVE_DATA_URL.format('SAVE_KOSPI_TICKERS'));
-
-  ///// TASK 3: GET KOSDAQ TICKERS /////
-  const kosdaqTickersData = await puppet.getKosdaqTickers(current_date);
-  processor.setData(kosdaqTickersData);
-  const processeKosdaqTickersData = await processor.processKosdaqTickers();
-  console.log(processeKosdaqTickersData);
-  await redis.delKey('kosdaq_tickers');
-  await redis.setList(processeKosdaqTickersData);
-  await axios.get(SAVE_DATA_URL.format('SAVE_KOSDAQ_TICKERS'));
-
-  // ///// TASK 4: MASS INDEX CRAWL /////
-  // const indexData = await puppet.massIndexCrawl(todayDate);
-  // processor.setData(indexData);
-  // const processedIndexData = processor.processMassIndex();
-  // console.log(processedIndexData);
+  // ///// TASK 2: GET KOSPI TICKERS /////
+  // const kospiTickersData = await puppet.getKospiTickers(current_date);
+  // processor.setData(kospiTickersData);
+  // const processedKospiTickersData = await processor.processKospiTickers();
+  // console.log(processedKospiTickersData);
+  // await redis.delKey('kospi_tickers');
+  // await redis.setList(processedKospiTickersData);
+  // await axios.get(SAVE_DATA_URL.format('SAVE_KOSPI_TICKERS'));
   //
-  // ///// TASK 4: MASS ETF CRAWL /////
-  // const ETFData = await puppet.massETFCrawl(todayDate);
-  // // processor.setData(indexData);
-  // // const processedIndexData = processor.processMassIndex();
-  // console.log(ETFData);
+  // ///// TASK 3: GET KOSDAQ TICKERS /////
+  // const kosdaqTickersData = await puppet.getKosdaqTickers(current_date);
+  // processor.setData(kosdaqTickersData);
+  // const processeKosdaqTickersData = await processor.processKosdaqTickers();
+  // console.log(processeKosdaqTickersData);
+  // await redis.delKey('kosdaq_tickers');
+  // await redis.setList(processeKosdaqTickersData);
+  // await axios.get(SAVE_DATA_URL.format('SAVE_KOSDAQ_TICKERS'));
+
+  ///// TASK 4: STOCK INFO CRAWL /////
+  const stockInfoData = await puppet.getStockInfo();
+  processor.setData(stockInfoData);
+  const processedStockInfoData = await processor.processStockInfo(current_date);
+  console.log(processedStockInfoData);
+
+  ///// TASK 5: MASS INDEX CRAWL /////
+  const indexData = await puppet.massIndexCrawl(current_date);
+  processor.setData(indexData);
+  const processedIndexData = await processor.processMassIndex(current_date);
+  console.log(processedIndexData);
+
+  ///// TASK 6: MASS ETF CRAWL /////
+  const ETFData = await puppet.massETFCrawl(current_date);
+  processor.setData(ETFData);
+  const processedETFData = await processor.processMassETF(current_date);
+  console.log(processedETFData);
+
+  ///// TASK 7: MASS OHLCV CRAWL /////
+  const OHLCVData = await puppet.massOHLCVCrawl(current_date);
+  processor.setData(OHLCVData);
+  const processedOHLCVData = await processor.processMassOHLCV(current_date);
+  console.log(processedOHLCVData);
+
+  ///// TASK 8: MKT CAP CRAWL /////
+  const mktCapData = await puppet.massMktCapCrawl(current_date);
+  processor.setData(mktCapData);
+  const processedMktCapData = await processor.processMktCap(current_date);
+  console.log(processedMktCapData);
+
+  ///// TASK 9: MASS BUYSELL CRAWL /////
+  const buySellData = await puppet.massBuysellCrawl(current_date);
+  processor.setData(buySellData);
+  const processedBuySellData = await processor.processMassBuysell(current_date);
+  console.log(processedBuySellData);
+
+  ///// TASK 10: MASS BUYSELL CRAWL /////
+  const factorData = await puppet.massFactorCrawl(current_date);
+  processor.setData(factorData);
+  const processedFactorData = await processor.processMassFactor(current_date);
+  console.log(processedFactorData);
 
   // await puppet.done();
 };

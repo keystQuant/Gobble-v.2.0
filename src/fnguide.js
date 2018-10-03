@@ -18,10 +18,11 @@ const URL = {
     date: 'http://www.fnguide.com/api/Fgdd/StkIndMByTimeGrdData?IN_MULTI_VALUE=CJA005930%2CCII.001&IN_START_DT=20000101&IN_END_DT={0}&IN_DATE_TYPE=D&IN_ADJ_YN=Y',
     kospi_tickers: 'http://www.fnguide.com/api/Fgdd/StkIndByTimeGrdDataDate?IN_SEARCH_DT={0}&IN_SEARCH_TYPE=J&IN_KOS_VALUE=1',
     kosdaq_tickers: 'http://www.fnguide.com/api/Fgdd/StkIndByTimeGrdDataDate?IN_SEARCH_DT={0}&IN_SEARCH_TYPE=J&IN_KOS_VALUE=2',
+    stock_info: 'http://www.fnguide.com/api/Fgdd/StkAllItemInfoGrdData?IN_KOS_VALUE=0',
     index: 'http://www.fnguide.com/api/Fgdd/StkIndByTimeGrdDataDate?IN_SEARCH_DT={0}&IN_SEARCH_TYPE=I&IN_KOS_VALUE=0',
     etf: 'http://www.fnguide.com/api/Fgdd/StkEtfGrdDataDate?IN_TRD_DT={0}&IN_MKT_GB=0',
     ohlcv: 'http://www.fnguide.com/api/Fgdd/StkIndByTimeGrdDataDate?IN_SEARCH_DT={0}&IN_SEARCH_TYPE=J&IN_KOS_VALUE=0',
-    mkt_cap: 'http://fnguide.com/api/Fgdd/StkItemDateCapGrdDataDate?IN_MKT_TYPE=0&IN_SEARCH_DT={0}',
+    mkt_cap: 'http://www.fnguide.com/api/Fgdd/StkItemDateCapGrdDataDate?IN_MKT_TYPE=0&IN_SEARCH_DT={0}',
     buysell: 'http://www.fnguide.com/api/Fgdd/StkJInvTrdTrendGrdDataDate?IN_MKT_TYPE=0&IN_TRD_DT={0}&IN_UNIT_GB=2',
     factor: 'http://www.fnguide.com/api/Fgdd/StkDateShareIndxGrdDataDate?IN_SEARCH_DT={0}&IN_MKT_TYPE=0&IN_CONSOLIDATED=1',
   },
@@ -156,6 +157,24 @@ class Puppet {
     });
 
     return kosdaqTickersData;
+  }
+
+  async getStockInfo() {
+    const page = this.page;
+
+    // set headers to fool Fnguide
+    await page.setExtraHTTPHeaders({
+      Referer: 'http://fnguide.com/fgdd/StkAllItemInfo',
+      'X-Requested-With': 'XMLHttpRequest',
+    });
+    const stockInfoURL = URL.API.stock_info.format();
+    await page.goto(stockInfoURL);
+    const stockInfoData = await page.evaluate(() => {
+      const data = JSON.parse(document.querySelector('body').innerText);
+      return data
+    });
+
+    return stockInfoData;
   }
 
   async massIndexCrawl(date) {

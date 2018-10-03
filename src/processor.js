@@ -58,6 +58,30 @@ class Processor {
     return kosdaqTickersData;
   }
 
+  async processStockInfo(date) {
+    const jsonDate = date;
+
+    const stockInfoData = ['stock_info'];
+    for (const obj of this.data.Data) {
+      for (const json of obj) {
+        const jsonMashed = '{0}|{1}|{2}|{3}|{4}|{5}|{6}|{7}|{8}'.format(
+          jsonDate,
+          json.GICODE,
+          json.ITEMABBRNM,
+          json.STK_KIND,
+          json.MKT_GB,
+          json.MKT_CAP,
+          json.MKT_CAP_SIZE,
+          json.FRG_HLD,
+          json.MGT_GB,
+        ); // fill in semi colon separated string
+        stockInfoData.push(jsonMashed);
+      } // inner for loop
+    } // outer for loop
+
+    return stockInfoData;
+  }
+
   async processMassIndex(date) {
     const jsonDate = date;
 
@@ -80,6 +104,29 @@ class Processor {
     } // outer for loop
 
     return indexData;
+  }
+
+  async processMassETF(date) {
+    const jsonDate = date;
+
+    const ETFData = ['mass_etf'];
+    for (const obj of this.data.Data) {
+      for (const json of obj) {
+        const jsonMashed = '{0}|{1}|{2}|{3}|{4}|{5}|{6}|{7}'.format(
+          jsonDate,
+          json.GICODE,
+          json.ITEMABBRNM,
+          json.CLS_PRC,
+          json.TRD_QTY,
+          json.TRD_AMT,
+          json.ETF_NAV,
+          json.SPREAD
+        ); // fill in semi colon separated string
+        ETFData.push(jsonMashed);
+      } // inner for loop
+    } // outer for loop
+
+    return ETFData;
   }
 
   async processMassOHLCV(date) {
@@ -106,6 +153,26 @@ class Processor {
     } // outer for loop
 
     return ohlcvData;
+  }
+
+  async processMktCap(date) {
+    const jsonDate = date;
+
+    const mktCapData = ['market_capital'];
+    for (const obj of this.data.Data) {
+      for (const json of obj) {
+        const jsonMashed = '{0}|{1}|{2}|{3}|{4}'.format(
+          jsonDate,
+          json.GICODE,
+          json.ITEMABBRNM,
+          json.COMM_STK_QTY,
+          json.PREF_STK_QTY,
+        ); // fill in semi colon separated string
+        mktCapData.push(jsonMashed);
+      } // inner for loop
+    } // outer for loop
+
+    return mktCapData;
   }
 
   async processMassBuysell(date) {
