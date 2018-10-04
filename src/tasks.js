@@ -17,7 +17,7 @@ String.prototype.format = function () {
   return formatted;
 };
 
-// keyst-db-server
+// keyst-api-server
 const SAVE_DATA_URL = 'http://45.76.202.71:3000/api/v1/stocks/task/?type={0}&&env=remote';
 
 
@@ -84,6 +84,8 @@ amqp.connect('amqp://admin:admin123@rabbit:5672//', (err, conn) => {
         await redis.setList(processeKosdaqTickersData);
         // await axios.get(SAVE_DATA_URL.format('SAVE_KOSDAQ_TICKERS'));
       }
+
+      await puppet.done();
 
     }, { noAck: false });
   });
