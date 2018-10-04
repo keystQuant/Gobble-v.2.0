@@ -1,6 +1,8 @@
 const amqp = require('amqplib/callback_api');
+const axios = require('axios');
 
 const { Puppet } = require('./fnguide.js');
+const { Processor } = require('./processor.js');
 const { RedisClient } = require('./cache.js');
 
 amqp.connect('amqp://admin:admin123@rabbit:5672//', (err, conn) => {
@@ -20,6 +22,7 @@ amqp.connect('amqp://admin:admin123@rabbit:5672//', (err, conn) => {
       // 모든 태스크는 퍼페티어를 기반으로 한다
       // 태스크를 받았다면 우선 크롬을 실행시킨다
       const puppet = new Puppet('crawl');
+      const processor = new Processor();
       const started = await puppet.startBrowser(true, 100);
       if (started == true) {
         await puppet.login();
@@ -29,14 +32,40 @@ amqp.connect('amqp://admin:admin123@rabbit:5672//', (err, conn) => {
       if (receivedTask === 'DATE') {
         const dateData = await puppet.massDateCrawl(); // API로 요청을 보내어 데이터를 가지고 옵니다.
         processor.setData(dateData);
-        const processeDateData = processor.processMassDate();
+        const processedDateData = await processor.processMassDate();
+        console.log(processedDateData);
         await redis.delKey('mass_date');
-        await redis.setList(processeDateData);
-        console.log('set dates data complete')
+        await redis.setList(processedDateData);
+        await axios.get(SAVE_DATA_URL.format('SAVE_MASS_DATE'))
+          .catch(error => {
+            console.log(error);
+          });
       }
 
       if (receivedTask === 'TICKER') {
-        // pass
+        const dateData = await puppet.massDateCrawl();
+        processor.setData(dateData);
+        const processedDateData = await processor.processMassDate();
+
+        const current_date = processedDateData.slice(-1)[0];
+
+        ///// GET KOSPI TICKERS /////
+        const kospiTickersData = await puppet.getKospiTickers(current_date);
+        processor.setData(kospiTickersData);
+        const processedKospiTickersData = await processor.processKospiTickers();
+        console.log(processedKospiTickersData);
+        await redis.delKey('kospi_tickers');
+        await redis.setList(processedKospiTickersData);
+        // await axios.get(SAVE_DATA_URL.format('SAVE_KOSPI_TICKERS'));
+
+        ///// GET KOSDAQ TICKERS /////
+        const kosdaqTickersData = await puppet.getKosdaqTickers(current_date);
+        processor.setData(kosdaqTickersData);
+        const processeKosdaqTickersData = await processor.processKosdaqTickers();
+        console.log(processeKosdaqTickersData);
+        await redis.delKey('kosdaq_tickers');
+        await redis.setList(processeKosdaqTickersData);
+        // await axios.get(SAVE_DATA_URL.format('SAVE_KOSDAQ_TICKERS'));
       }
 
     }, { noAck: false });
