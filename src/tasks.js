@@ -18,7 +18,7 @@ String.prototype.format = function () {
 };
 
 // keyst-db-server
-const SAVE_DATA_URL = 'http://45.76.218.34:3000/api/v1/stocks/task/?type={0}&&env=remote';
+const SAVE_DATA_URL = 'http://45.76.202.71:3000/api/v1/stocks/task/?type={0}&&env=remote';
 
 
 // RabbitMQ 태스크 정의
