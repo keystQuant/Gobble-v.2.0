@@ -5,6 +5,23 @@ const { Puppet } = require('./fnguide.js');
 const { Processor } = require('./processor.js');
 const { RedisClient } = require('./cache.js');
 
+String.prototype.format = function () {
+  // es5 synatax
+  // finds '{}' within string values and replaces them with
+  // given parameter values in the .format method
+  let formatted = this;
+  for (let i = 0; i < arguments.length; i++) {
+    const regexp = new RegExp(`\\{${i}\\}`, 'gi');
+    formatted = formatted.replace(regexp, arguments[i]);
+  }
+  return formatted;
+};
+
+// keyst-db-server
+const SAVE_DATA_URL = 'http://45.76.218.34:3000/api/v1/stocks/task/?type={0}&&env=remote';
+
+
+// RabbitMQ 태스크 정의
 amqp.connect('amqp://admin:admin123@rabbit:5672//', (err, conn) => {
   conn.createChannel((err, ch) => {
     const q = 'crawl';
@@ -12,8 +29,8 @@ amqp.connect('amqp://admin:admin123@rabbit:5672//', (err, conn) => {
     ch.assertQueue(q, { durable: true });
     console.log("[*] %s 큐에서 데이터 수집 태스크를 기다리고 있습니다. 프로그램 종료를 위해서는 CTRL+C 를 누르세요.", q);
     ch.consume(q, async (task) => {
-      console.log("[x] 데이터 수집 요청 받음");
       const receivedTask = JSON.parse(task.content.toString());
+      console.log("[x] 데이터 수집 요청 받음: " + receivedTask);
 
       // Redis 캐시 연결하여 데이터 저장할 준비
       const redis = new RedisClient();
