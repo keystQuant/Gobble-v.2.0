@@ -135,6 +135,31 @@ amqp.connect('amqp://admin:admin123@rabbit:5672//', (err, conn) => {
         } else {
           console.log('Stock Info already up to date, skipping update.');
         }
+
+        ///// INDEX /////
+        updateStartSignalExists = await redis.keyExists('UPDATE_INDEX');
+        if (updateStartSignalExists === 1) {
+          updateStart = await redis.getKey('UPDATE_INDEX');
+        } else {
+          updateStart = 'True';
+        }
+        if (updateStart == 'True') {
+          updateList = await redis.getList('to_update_index_list');
+          for (let date of updateList) {
+            const indexData = await puppet.massIndexCrawl(date);
+            processor.setData(indexData);
+            const processedIndexData = await processor.processMassIndex(date);
+            console.log(processedStockInfoData);
+            await redis.delKey('mass_index');
+            await redis.setList(processedIndexData);
+            await axios.get(SAVE_DATA_URL.format('SAVE_MASS_INDEX'))
+              .catch(error => {
+                console.log(error);
+              });
+          }
+        } else {
+          console.log('Index already up to date, skipping update.');
+        }
       }
 
       // 크롤링 태스크 완료 후에 puppeteer를 닫아주지 않으면, 메모리를 모두 사용하게 되어
