@@ -160,6 +160,131 @@ amqp.connect('amqp://admin:admin123@rabbit:5672//', (err, conn) => {
         } else {
           console.log('Index already up to date, skipping update.');
         }
+
+        ///// ETF /////
+        updateStartSignalExists = await redis.keyExists('UPDATE_ETF');
+        if (updateStartSignalExists === 1) {
+          updateStart = await redis.getKey('UPDATE_ETF');
+        } else {
+          updateStart = 'True';
+        }
+        if (updateStart == 'True') {
+          updateList = await redis.getList('to_update_etf_list');
+          for (let date of updateList) {
+            const ETFData = await puppet.massETFCrawl(date);
+            processor.setData(ETFData);
+            const processedETFData = await processor.processMassETF(date);
+            console.log(processedETFData);
+            await redis.delKey('mass_etf');
+            await redis.setList(processedETFData);
+            await axios.get(SAVE_DATA_URL.format('SAVE_MASS_ETF'))
+              .catch(error => {
+                console.log(error);
+              });
+          }
+        } else {
+          console.log('ETF already up to date, skipping update.');
+        }
+
+        ///// OHLCV /////
+        updateStartSignalExists = await redis.keyExists('UPDATE_OHLCV');
+        if (updateStartSignalExists === 1) {
+          updateStart = await redis.getKey('UPDATE_OHLCV');
+        } else {
+          updateStart = 'True';
+        }
+        if (updateStart == 'True') {
+          updateList = await redis.getList('to_update_ohlcv_list');
+          for (let date of updateList) {
+            const OHLCVData = await puppet.massOHLCVCrawl(date);
+            processor.setData(OHLCVData);
+            const processedOHLCVData = await processor.processMassOHLCV(date);
+            console.log(processedOHLCVData);
+            await redis.delKey('mass_ohlcv');
+            await redis.setList(processedOHLCVData);
+            await axios.get(SAVE_DATA_URL.format('SAVE_MASS_OHLCV'))
+              .catch(error => {
+                console.log(error);
+              });
+          }
+        } else {
+          console.log('OHLCV already up to date, skipping update.');
+        }
+
+        ///// MARKET CAPITAL /////
+        updateStartSignalExists = await redis.keyExists('UPDATE_MARKETCAPITAL');
+        if (updateStartSignalExists === 1) {
+          updateStart = await redis.getKey('UPDATE_MARKETCAPITAL');
+        } else {
+          updateStart = 'True';
+        }
+        if (updateStart == 'True') {
+          updateList = await redis.getList('to_update_marketcapital_list');
+          for (let date of updateList) {
+            const mktCapData = await puppet.massMktCapCrawl(date);
+            processor.setData(mktCapData);
+            const processedMktCapData = await processor.processMktCap(date);
+            console.log(processedMktCapData);
+            await redis.delKey('mass_marketcapital');
+            await redis.setList(processedOHLCVData);
+            await axios.get(SAVE_DATA_URL.format('SAVE_MASS_MARKETCAPITAL'))
+              .catch(error => {
+                console.log(error);
+              });
+          }
+        } else {
+          console.log('Market Capital already up to date, skipping update.');
+        }
+
+        ///// BUYSELL /////
+        updateStartSignalExists = await redis.keyExists('UPDATE_BUYSELL');
+        if (updateStartSignalExists === 1) {
+          updateStart = await redis.getKey('UPDATE_BUYSELL');
+        } else {
+          updateStart = 'True';
+        }
+        if (updateStart == 'True') {
+          updateList = await redis.getList('to_update_buysell_list');
+          for (let date of updateList) {
+            const buySellData = await puppet.massBuysellCrawl(date);
+            processor.setData(buySellData);
+            const processedBuySellData = await processor.processMassBuysell(date);
+            console.log(processedBuySellData);
+            await redis.delKey('mass_buysell');
+            await redis.setList(processedBuySellData);
+            await axios.get(SAVE_DATA_URL.format('SAVE_MASS_BUYSELL'))
+              .catch(error => {
+                console.log(error);
+              });
+          }
+        } else {
+          console.log('Buysell already up to date, skipping update.');
+        }
+
+        ///// FACTOR /////
+        updateStartSignalExists = await redis.keyExists('UPDATE_FACTOR');
+        if (updateStartSignalExists === 1) {
+          updateStart = await redis.getKey('UPDATE_FACTOR');
+        } else {
+          updateStart = 'True';
+        }
+        if (updateStart == 'True') {
+          updateList = await redis.getList('to_update_factor_list');
+          for (let date of updateList) {
+            const factorData = await puppet.massFactorCrawl(date);
+            processor.setData(factorData);
+            const processedFactorData = await processor.processMassFactor(date);
+            console.log(processedFactorData);
+            await redis.delKey('mass_factor');
+            await redis.setList(processedFactorData);
+            await axios.get(SAVE_DATA_URL.format('SAVE_MASS_FACTOR'))
+              .catch(error => {
+                console.log(error);
+              });
+          }
+        } else {
+          console.log('Factor already up to date, skipping update.');
+        }
       }
 
       // 크롤링 태스크 완료 후에 puppeteer를 닫아주지 않으면, 메모리를 모두 사용하게 되어
