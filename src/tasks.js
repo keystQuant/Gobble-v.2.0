@@ -45,14 +45,19 @@ amqp.connect('amqp://admin:admin123@rabbit:5672//', (err, conn) => {
         await puppet.login();
       }
 
+      let updateStartSignalExists;
+      let updateStart;
+      let updateList;
+      let updateDate;
+
       // 태스크 시작
       if (receivedTask === 'DATE') {
-        const updateStartSignalExists = await redis.keyExists('UPDATE_DATE');
+        updateStartSignalExists = await redis.keyExists('UPDATE_DATE');
         if (updateStartSignalExists === 1) {
-          const updateStart = await redis.getKey('UPDATE_DATE');
+          updateStart = await redis.getKey('UPDATE_DATE');
         } else {
           // 레디스 서버가 새서버여서 아무 데이터가 없다면 우선 태스크 실행시키기
-          const updateStart = 'True';
+          updateStart = 'True';
         }
         if (updateStart === 'True') {
           const dateData = await puppet.massDateCrawl(); // API로 요청을 보내어 데이터를 가지고 옵니다.
@@ -71,11 +76,6 @@ amqp.connect('amqp://admin:admin123@rabbit:5672//', (err, conn) => {
       }
 
       if (receivedTask === 'FNGUIDE') {
-        let updateStartSignalExists;
-        let updateStart;
-        let updateList;
-        let updateDate;
-
         ///// TICKER /////
         updateStartSignalExists = await redis.keyExists('UPDATE_TICKER');
         if (updateStartSignalExists === 1) {
