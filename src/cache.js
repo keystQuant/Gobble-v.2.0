@@ -3,7 +3,7 @@ const asyncRedis = require('async-redis'); // wrapper for regular redis library
 // regular redis library does not return promises
 // use async-redis to change redis tasks synchronous
 
-const CACHE_IP = '198.13.60.78';
+const CACHE_IP = '198.13.60.19';
 const PW = 'da56038fa453c22d2c46e83179126e97d4d272d02ece83eb83a97357e842d065';
 
 
