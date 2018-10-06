@@ -15,7 +15,8 @@ const URL = {
   DATE_PAGE: 'http://www.fnguide.com/fgdd/StkIndmByTime#multivalue=CJA005930|CII.001&adjyn=Y&multiname=삼성전자|종합주가지수',
   MKTCAP_PAGE: 'http://www.fnguide.com/fgdd/StkItemDateCap#tab=D&market=0',
   API: {
-    date: 'http://www.fnguide.com/api/Fgdd/StkIndMByTimeGrdData?IN_MULTI_VALUE=CJA005930%2CCII.001&IN_START_DT=20000101&IN_END_DT={0}&IN_DATE_TYPE=D&IN_ADJ_YN=Y',
+    // date의 URL에서 IN_START_DT=20130101 부분 때문에 20130101부터 데이터 수집 시작
+    date: 'http://www.fnguide.com/api/Fgdd/StkIndMByTimeGrdData?IN_MULTI_VALUE=CJA005930%2CCII.001&IN_START_DT=20130101&IN_END_DT={0}&IN_DATE_TYPE=D&IN_ADJ_YN=Y',
     kospi_tickers: 'http://www.fnguide.com/api/Fgdd/StkIndByTimeGrdDataDate?IN_SEARCH_DT={0}&IN_SEARCH_TYPE=J&IN_KOS_VALUE=1',
     kosdaq_tickers: 'http://www.fnguide.com/api/Fgdd/StkIndByTimeGrdDataDate?IN_SEARCH_DT={0}&IN_SEARCH_TYPE=J&IN_KOS_VALUE=2',
     stock_info: 'http://www.fnguide.com/api/Fgdd/StkAllItemInfoGrdData?IN_KOS_VALUE=0',
