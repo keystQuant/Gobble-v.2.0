@@ -20,6 +20,24 @@ String.prototype.format = function () {
 // keyst-api-server
 const SAVE_DATA_URL = 'http://45.76.202.71:3000/api/v1/stocks/task/?type={0}&&env=remote';
 
+const sleep = (ms) => {
+  return new Promise(resolve => setTimeout(resolve, ms));
+};
+
+const setNewEvent = async (redis, eventName) => {
+  const res = await redis.setKey(eventName, 'False');
+  return res;
+};
+
+const checkRedisForEvent = async (redis, eventName) => {
+  let res = 'False';
+  while (res === 'False') {
+    res = await redis.getKey(eventName);
+    await sleep(2000);
+    console.log('데이터 아직 저장 중...')
+  }
+  return res;
+};
 
 // RabbitMQ 태스크 정의
 amqp.connect('amqp://admin:admin123@rabbit:5672//', (err, conn) => {
@@ -167,6 +185,7 @@ amqp.connect('amqp://admin:admin123@rabbit:5672//', (err, conn) => {
         if (updateStart == 'True') {
           updateList = await redis.getList('to_update_index_list');
           for (let date of updateList) {
+            const startEvent = await setNewEvent(redis, 'INDEX_JUST_UPDATED_TO_DB');
             const indexData = await puppet.massIndexCrawl(date);
             processor.setData(indexData);
             const processedIndexData = await processor.processMassIndex(date);
@@ -177,6 +196,7 @@ amqp.connect('amqp://admin:admin123@rabbit:5672//', (err, conn) => {
               .catch(error => {
                 console.log(error);
               });
+            const endEvent = await checkRedisForEvent(redis, 'INDEX_JUST_UPDATED_TO_DB');
           }
         } else {
           console.log('Index already up to date, skipping update.');
@@ -195,6 +215,7 @@ amqp.connect('amqp://admin:admin123@rabbit:5672//', (err, conn) => {
         if (updateStart == 'True') {
           updateList = await redis.getList('to_update_etf_list');
           for (let date of updateList) {
+            const startEvent = await setNewEvent(redis, 'ETF_JUST_UPDATED_TO_DB');
             const ETFData = await puppet.massETFCrawl(date);
             processor.setData(ETFData);
             const processedETFData = await processor.processMassETF(date);
@@ -205,6 +226,7 @@ amqp.connect('amqp://admin:admin123@rabbit:5672//', (err, conn) => {
               .catch(error => {
                 console.log(error);
               });
+            const endEvent = await checkRedisForEvent(redis, 'ETF_JUST_UPDATED_TO_DB');
           }
         } else {
           console.log('ETF already up to date, skipping update.');
@@ -223,6 +245,7 @@ amqp.connect('amqp://admin:admin123@rabbit:5672//', (err, conn) => {
         if (updateStart == 'True') {
           updateList = await redis.getList('to_update_ohlcv_list');
           for (let date of updateList) {
+            const startEvent = await setNewEvent(redis, 'OHLCV_JUST_UPDATED_TO_DB');
             const OHLCVData = await puppet.massOHLCVCrawl(date);
             processor.setData(OHLCVData);
             const processedOHLCVData = await processor.processMassOHLCV(date);
@@ -233,6 +256,7 @@ amqp.connect('amqp://admin:admin123@rabbit:5672//', (err, conn) => {
               .catch(error => {
                 console.log(error);
               });
+            const endEvent = await checkRedisForEvent(redis, 'OHLCV_JUST_UPDATED_TO_DB');
           }
         } else {
           console.log('OHLCV already up to date, skipping update.');
@@ -251,6 +275,7 @@ amqp.connect('amqp://admin:admin123@rabbit:5672//', (err, conn) => {
         if (updateStart == 'True') {
           updateList = await redis.getList('to_update_marketcapital_list');
           for (let date of updateList) {
+            const startEvent = await setNewEvent(redis, 'MARKETCAPITAL_JUST_UPDATED_TO_DB');
             const mktCapData = await puppet.massMktCapCrawl(date);
             processor.setData(mktCapData);
             const processedMktCapData = await processor.processMktCap(date);
@@ -261,6 +286,7 @@ amqp.connect('amqp://admin:admin123@rabbit:5672//', (err, conn) => {
               .catch(error => {
                 console.log(error);
               });
+            const endEvent = await checkRedisForEvent(redis, 'MARKETCAPITAL_JUST_UPDATED_TO_DB');
           }
         } else {
           console.log('Market Capital already up to date, skipping update.');
@@ -279,6 +305,7 @@ amqp.connect('amqp://admin:admin123@rabbit:5672//', (err, conn) => {
         if (updateStart == 'True') {
           updateList = await redis.getList('to_update_buysell_list');
           for (let date of updateList) {
+            const startEvent = await setNewEvent(redis, 'BUYSELL_JUST_UPDATED_TO_DB');
             const buySellData = await puppet.massBuysellCrawl(date);
             processor.setData(buySellData);
             const processedBuySellData = await processor.processMassBuysell(date);
@@ -289,6 +316,7 @@ amqp.connect('amqp://admin:admin123@rabbit:5672//', (err, conn) => {
               .catch(error => {
                 console.log(error);
               });
+            const endEvent = await checkRedisForEvent(redis, 'BUYSELL_JUST_UPDATED_TO_DB');
           }
         } else {
           console.log('Buysell already up to date, skipping update.');
@@ -307,6 +335,7 @@ amqp.connect('amqp://admin:admin123@rabbit:5672//', (err, conn) => {
         if (updateStart == 'True') {
           updateList = await redis.getList('to_update_factor_list');
           for (let date of updateList) {
+            const startEvent = await setNewEvent(redis, 'FACTOR_JUST_UPDATED_TO_DB');
             const factorData = await puppet.massFactorCrawl(date);
             processor.setData(factorData);
             const processedFactorData = await processor.processMassFactor(date);
@@ -317,6 +346,7 @@ amqp.connect('amqp://admin:admin123@rabbit:5672//', (err, conn) => {
               .catch(error => {
                 console.log(error);
               });
+            const endEvent = await checkRedisForEvent(redis, 'FACTOR_JUST_UPDATED_TO_DB');
           }
         } else {
           console.log('Factor already up to date, skipping update.');
