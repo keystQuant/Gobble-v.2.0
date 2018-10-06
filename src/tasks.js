@@ -159,7 +159,7 @@ amqp.connect('amqp://admin:admin123@rabbit:5672//', (err, conn) => {
             const indexData = await puppet.massIndexCrawl(date);
             processor.setData(indexData);
             const processedIndexData = await processor.processMassIndex(date);
-            console.log(processedStockInfoData);
+            console.log(processedIndexData);
             await redis.delKey('mass_index');
             await redis.setList(processedIndexData);
             await axios.get(SAVE_DATA_URL.format('SAVE_MASS_INDEX'))
