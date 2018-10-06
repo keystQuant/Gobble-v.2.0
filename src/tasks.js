@@ -281,7 +281,7 @@ amqp.connect('amqp://admin:admin123@rabbit:5672//', (err, conn) => {
             const processedMktCapData = await processor.processMktCap(date);
             console.log(processedMktCapData);
             await redis.delKey('mass_marketcapital');
-            await redis.setList(processedOHLCVData);
+            await redis.setList(processedMktCapData);
             await axios.get(SAVE_DATA_URL.format('SAVE_MASS_MARKETCAPITAL'))
               .catch(error => {
                 console.log(error);
