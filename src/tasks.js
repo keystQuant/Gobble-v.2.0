@@ -73,9 +73,13 @@ amqp.connect('amqp://admin:admin123@rabbit:5672//', (err, conn) => {
         } else {
           console.log('Date already up to date, skipping update.');
         }
+        // 크롤링 태스크 완료 후에 puppeteer를 닫아주지 않으면, 메모리를 모두 사용하게 되어
+        // 서버에 에러가 발생하거나, 크롤링 속도에 지장이 있다.
+        // 그럴 경우 좀비 프로세스를 모두 주기적으로 제거하거나, 매번 태스크가 끝나면 프로세스를 꺼준다.
+        await puppet.done();
       }
 
-      if (receivedTask === 'FNGUIDE') {
+      if (receivedTask === 'TICKER') {
         ///// TICKER /////
         updateStartSignalExists = await redis.keyExists('UPDATE_TICKER');
         if (updateStartSignalExists === 1) {
@@ -111,7 +115,10 @@ amqp.connect('amqp://admin:admin123@rabbit:5672//', (err, conn) => {
         } else {
           console.log('Tickers already up to date, skipping update.');
         }
+        await puppet.done();
+      }
 
+      if (receivedTask === 'STOCKINFO') {
         ///// STOCK INFO /////
         updateStartSignalExists = await redis.keyExists('UPDATE_STOCKINFO');
         if (updateStartSignalExists === 1) {
@@ -135,7 +142,10 @@ amqp.connect('amqp://admin:admin123@rabbit:5672//', (err, conn) => {
         } else {
           console.log('Stock Info already up to date, skipping update.');
         }
+        await puppet.done();
+      }
 
+      if (receivedTask === 'INDEX') {
         ///// INDEX /////
         updateStartSignalExists = await redis.keyExists('UPDATE_INDEX');
         if (updateStartSignalExists === 1) {
@@ -160,7 +170,10 @@ amqp.connect('amqp://admin:admin123@rabbit:5672//', (err, conn) => {
         } else {
           console.log('Index already up to date, skipping update.');
         }
+        await puppet.done();
+      }
 
+      if (receivedTask === 'ETF') {
         ///// ETF /////
         updateStartSignalExists = await redis.keyExists('UPDATE_ETF');
         if (updateStartSignalExists === 1) {
@@ -185,7 +198,10 @@ amqp.connect('amqp://admin:admin123@rabbit:5672//', (err, conn) => {
         } else {
           console.log('ETF already up to date, skipping update.');
         }
+        await puppet.done();
+      }
 
+      if (receivedTask === 'OHLCV') {
         ///// OHLCV /////
         updateStartSignalExists = await redis.keyExists('UPDATE_OHLCV');
         if (updateStartSignalExists === 1) {
@@ -210,7 +226,10 @@ amqp.connect('amqp://admin:admin123@rabbit:5672//', (err, conn) => {
         } else {
           console.log('OHLCV already up to date, skipping update.');
         }
+        await puppet.done();
+      }
 
+      if (receivedTask === 'MARKETCAPITAL') {
         ///// MARKET CAPITAL /////
         updateStartSignalExists = await redis.keyExists('UPDATE_MARKETCAPITAL');
         if (updateStartSignalExists === 1) {
@@ -235,7 +254,10 @@ amqp.connect('amqp://admin:admin123@rabbit:5672//', (err, conn) => {
         } else {
           console.log('Market Capital already up to date, skipping update.');
         }
+        await puppet.done();
+      }
 
+      if (receivedTask === 'BUYSELL') {
         ///// BUYSELL /////
         updateStartSignalExists = await redis.keyExists('UPDATE_BUYSELL');
         if (updateStartSignalExists === 1) {
@@ -260,7 +282,10 @@ amqp.connect('amqp://admin:admin123@rabbit:5672//', (err, conn) => {
         } else {
           console.log('Buysell already up to date, skipping update.');
         }
+        await puppet.done();
+      }
 
+      if (receivedTask === 'FACTOR') {
         ///// FACTOR /////
         updateStartSignalExists = await redis.keyExists('UPDATE_FACTOR');
         if (updateStartSignalExists === 1) {
@@ -285,12 +310,8 @@ amqp.connect('amqp://admin:admin123@rabbit:5672//', (err, conn) => {
         } else {
           console.log('Factor already up to date, skipping update.');
         }
+        await puppet.done();
       }
-
-      // 크롤링 태스크 완료 후에 puppeteer를 닫아주지 않으면, 메모리를 모두 사용하게 되어
-      // 서버에 에러가 발생하거나, 크롤링 속도에 지장이 있다.
-      // 그럴 경우 좀비 프로세스를 모두 주기적으로 제거하거나, 매번 태스크가 끝나면 프로세스를 꺼준다.
-      await puppet.done();
 
     }, { noAck: false });
   });
