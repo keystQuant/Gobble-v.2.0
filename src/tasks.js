@@ -112,6 +112,17 @@ amqp.connect('amqp://admin:admin123@rabbit:5672//', (err, conn) => {
             .catch(error => {
               console.log(error);
             });
+            ///// GET ETF TICKERS /////
+            const ETFTickersData = await puppet.getETFTickers(updateDate);
+            processor.setData(ETFTickersData);
+            const processeETFTickersData = await processor.processETFTickers();
+            console.log(processeETFTickersData);
+            await redis.delKey('etf_tickers');
+            await redis.setList(processeETFTickersData);
+            await axios.get(SAVE_DATA_URL.format('SAVE_ETF_TICKERS'))
+              .catch(error => {
+                console.log(error);
+              });
         } else {
           console.log('Tickers already up to date, skipping update.');
         }

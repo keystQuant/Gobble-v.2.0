@@ -160,6 +160,24 @@ class Puppet {
     return kosdaqTickersData;
   }
 
+  async getETFTickers(date) {
+    const page = this.page;
+
+    // set headers to fool Fnguide
+    await page.setExtraHTTPHeaders({
+      Referer: 'http://fnguide.com/fgdd/StkEtf',
+      'X-Requested-With': 'XMLHttpRequest',
+    });
+    const ETFTickersURL = URL.API.etf.format(date);
+    await page.goto(ETFTickersURL);
+    const ETFTickersData = await page.evaluate(() => {
+      const data = JSON.parse(document.querySelector('body').innerText);
+      return data
+    });
+
+    return ETFTickersData;
+  }
+
   async getStockInfo() {
     const page = this.page;
 

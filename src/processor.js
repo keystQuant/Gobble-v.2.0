@@ -58,6 +58,19 @@ class Processor {
     return kosdaqTickersData;
   }
 
+  async processETFTickers() {
+    const ETFTickersData = ['etf_tickers'];
+
+    for (const obj of this.data.Data) {
+      for (const jsonData of obj) {
+        const data = jsonData.GICODE + '|' + jsonData.ITEMABBRNM;
+        ETFTickersData.push(data);
+      }
+    }
+
+    return ETFTickersData;
+  }
+
   async processStockInfo(date) {
     const jsonDate = date;
 
