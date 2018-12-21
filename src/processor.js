@@ -21,13 +21,14 @@ class Processor {
 
   async processMassDate() {
     const datesData = ['mass_date'];
-
-    for (const obj of this.data.Data) {
-      for (const jsonData of obj) {
-        const dateData = jsonData.TRD_DT.replace(/\./gi, '').trim();
-        datesData.push(dateData);
+    try{
+      for (const obj of this.data.Data) {
+        for (const jsonData of obj) {
+          const dateData = jsonData.TRD_DT.replace(/\./gi, '').trim();
+          datesData.push(dateData);
+        }
       }
-    }
+    } catch (e) { console.log(e); }
 
     return datesData;
   }
