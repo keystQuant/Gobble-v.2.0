@@ -23,6 +23,7 @@ class Processor {
     const datesData = ['mass_date'];
 
     for (const obj of this.data.Data) {
+      console.log(this.data.Data);
       for (const jsonData of obj) {
         const dateData = jsonData.TRD_DT.replace(/\./gi, '').trim();
         datesData.push(dateData);
