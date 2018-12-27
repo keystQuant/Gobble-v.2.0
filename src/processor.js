@@ -21,7 +21,7 @@ class Processor {
 
   async processMassDate() {
     const datesData = ['mass_date'];
-
+    console.log(this.data.Data);
     for (const obj of this.data.Data) {
       for (const jsonData of obj) {
         const dateData = jsonData.TRD_DT.replace(/\./gi, '').trim();
@@ -171,7 +171,7 @@ class Processor {
   async processMktCap(date) {
     const jsonDate = date;
 
-    const mktCapData = ['mass_marketcapital'];
+    const mktCapData = ['market_capital'];
     for (const obj of this.data.Data) {
       for (const json of obj) {
         const jsonMashed = '{0}|{1}|{2}|{3}|{4}'.format(
