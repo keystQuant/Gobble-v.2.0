@@ -5,6 +5,17 @@ const { Puppet } = require('./fnguide.js');
 const { Processor } = require('./processor.js');
 const { RedisClient } = require('./cache.js');
 
+const todayDate = () => {
+  const x = new Date();
+  const y = x.getFullYear().toString();
+  let m = (x.getMonth() + 1).toString();
+  let d = x.getDate().toString();
+  (d.length === 1) && (d = `0${d}`);
+  (m.length === 1) && (m = `0${m}`);
+  const yyyymmdd = y + m + d;
+  return yyyymmdd;
+};
+
 String.prototype.format = function () {
   // es5 synatax
   // finds '{}' within string values and replaces them with
@@ -156,8 +167,7 @@ amqp.connect('amqp://admin:admin123@rabbit:5672//', (err, conn) => {
           updateStart = 'True';
         }
         if (updateStart == 'True') {
-          updateList = await redis.getList('to_update_stockinfo_list');
-          updateDate = updateList[0];
+          updateDate = todayDate();
           const stockInfoData = await puppet.getStockInfo();
           processor.setData(stockInfoData);
           const processedStockInfoData = await processor.processStockInfo(updateDate);
