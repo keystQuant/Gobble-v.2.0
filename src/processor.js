@@ -171,7 +171,7 @@ class Processor {
   async processMktCap(date) {
     const jsonDate = date;
 
-    const mktCapData = ['market_capital'];
+    const mktCapData = ['mass_marketcapital'];
     for (const obj of this.data.Data) {
       for (const json of obj) {
         const jsonMashed = '{0}|{1}|{2}|{3}|{4}'.format(
